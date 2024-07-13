@@ -16,21 +16,26 @@ import (
 )
 
 type store interface {
-    CreateTrip(context.Context,*pgxpool.Pool, spec.CreateTripRequest)(uuid.UUID,error)
+	CreateTrip(context.Context, *pgxpool.Pool, spec.CreateTripRequest) (uuid.UUID, error)
 	GetParticipant(ctx context.Context, id uuid.UUID) (pgstore.Participant, error)
 	ConfirmParticipant(ctx context.Context, id uuid.UUID) error
+}
+
+type mailer interface {
+	SendConfirmTripEmailToTripOwner(uuid.UUID) error
 }
 
 type API struct {
 	store     store
 	logger    *zap.Logger // us.logger do stander lib tambem serve
 	validator *validator.Validate
-    pool *pgxpool.Pool
+	pool      *pgxpool.Pool
+    mailer    mailer
 }
 
-func NewAPI(pool *pgxpool.Pool, logger *zap.Logger) API {
+func NewAPI(pool *pgxpool.Pool, logger *zap.Logger, mailer mailer) API {
 	validator := validator.New(validator.WithRequiredStructEnabled())
-	return API{pgstore.New(pool), logger, validator,pool}
+	return API{pgstore.New(pool), logger, validator, pool,mailer}
 }
 
 // Confirms a participant on a trip.
@@ -73,18 +78,28 @@ func (ap *API) PatchParticipantsParticipantIDConfirm(w http.ResponseWriter, r *h
 func (ap *API) PostTrips(w http.ResponseWriter, r *http.Request) *spec.Response {
 	var body spec.CreateTripRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		return spec.PostTripsJSON400Response(spec.Error{Message: "invalid JSON"})
+		return spec.PostTripsJSON400Response(spec.Error{Message: "invalid JSON: " + err.Error()})
 	}
 
 	if err := ap.validator.Struct(body); err != nil {
 		return spec.PostTripsJSON400Response(spec.Error{Message: "invalid input: " + err.Error()})
 	}
 
-    tripID,err := ap.store.CreateTrip(r.Context(),ap.pool,body)
+	tripID, err := ap.store.CreateTrip(r.Context(), ap.pool, body)
 
-    if err != nil {
+	if err != nil {
 		return spec.PostTripsJSON400Response(spec.Error{Message: "failed to create trip, try again"})
-    }
+	}
+
+	go func() {
+        if err:=ap.mailer.SendConfirmTripEmailToTripOwner(tripID);err != nil {
+            ap.logger.Error(
+				"failed to send email on PostTrips",
+				zap.Error(err),
+				zap.String("trip_id", tripID.String()),
+			)
+        }
+	}()
 
 	return spec.PostTripsJSON201Response(spec.CreateTripResponse{TripID: tripID.String()})
 }
