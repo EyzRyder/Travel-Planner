@@ -108,13 +108,13 @@ Get a trip details.​
           "is_confirmed": true
         }
     }
-  ```
-  - 400 - Bad request
-  ```json
-  {
-  "message": "…"
-  }
-  ```
+    ```
+  - 400 - Bad request  
+    ```json
+    {
+    "message": "…"
+    }
+    ```
 
 #### PUT `/trips/{tripId}`
 
@@ -303,21 +303,21 @@ Get a trip links.​
 
 - Response 
   - 200 - Default Response
-  ```json
-  {
-    "links": [
+    ```json
       {
-        "id": "123e4567-e89b-12d3-a456-426614174000",
-        "title": "…",
-        "url": "https://example.com"
+        "links": [
+          {
+            "id": "123e4567-e89b-12d3-a456-426614174000",
+            "title": "…",
+            "url": "https://example.com"
+          }
+        ]
       }
-    ]
-  }
-  ```
+    ```
   - 400 - Bad request
     ```json
     {
     "message": "…"
     }
-  ```
+    ```
   
