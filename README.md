@@ -22,7 +22,7 @@
 ```
 - Install dependencies;
 ```bash
-  go mod download
+  go mod download && go mod verify
 ```
 - Install dependencies;
 ```bash
@@ -38,7 +38,7 @@
       docker compose start db -d
       # Optianaly setup pgadmin
       docker compose start pgadmin -d
-      go run ./cmd/journey/journey.go 
+      go run ./cmd/journey/journey.go
     ```
   - Test it! (I personally recommend testing with [Hoppscotch](https://hoppscotch.io/)).
 
@@ -109,7 +109,7 @@ Get a trip details.​
         }
     }
     ```
-  - 400 - Bad request  
+  - 400 - Bad request
     ```json
     {
     "message": "…"
@@ -130,7 +130,7 @@ Update a trip.​
   "ends_at":"2017-07-21T17:32:28Z", //Required string date-time
   }
   ```
-- Response 
+- Response
   - 204 - Default Response
   - 400 - Bad request
   ```json
@@ -146,7 +146,7 @@ Confirms a participant on a trip.​
 
 - Path Parameters `participantId Required string uuid`
 
-- Response 
+- Response
   - 204 - Default Response
   - 400 - Bad request
   ```json
@@ -167,7 +167,7 @@ Invite someone to the trip.​
   "email":"...",// Required string email
 }
 ```
-- Response 
+- Response
   - 201 - Default Response
   - 400 - Bad request
   ```json
@@ -182,7 +182,7 @@ Get a trip participants.​
 
 - Path Parameters `tripId Required string uuid`
 
-- Response 
+- Response
   - 200 - Default Response
   ```json
   {
@@ -202,7 +202,7 @@ Get a trip participants.​
   "message": "…"
   }
   ```
-  
+
 ### Activities
 
 #### POST `/trips/{tripId}/activities`
@@ -219,7 +219,7 @@ Create a trip activity.​
   }
 ```
 
-- Response 
+- Response
   - 201 - Default Response
   ```json
   {
@@ -232,7 +232,7 @@ Create a trip activity.​
   "message": "…"
   }
   ```
-  
+
 #### GET `/trips/{tripId}/activities`
 
 Get a trip activities.​
@@ -240,7 +240,7 @@ This route will return all the dates between the trip starts_at and ends_at date
 
 - Path Parameters `tripId Required string uuid`
 
-- Response 
+- Response
   - 200 - Default Response
   ```json
   {
@@ -264,7 +264,7 @@ This route will return all the dates between the trip starts_at and ends_at date
   "message": "…"
   }
   ```
-  
+
 ### Links
 
 #### POST `/trips/{tripId}/links`
@@ -276,12 +276,12 @@ Create a trip link.​
 - Request
 ```json
   {
-    "title":"...", // Required string 
+    "title":"...", // Required string
     "url":"...", // Required string url
   }
 ```
 
-- Response 
+- Response
   - 201 - Default Response
   ```json
     {
@@ -294,14 +294,14 @@ Create a trip link.​
     "message": "…"
     }
   ```
-  
+
 #### GET `/trips/{tripId}/links`
 
 Get a trip links.​
 
 - Path Parameters `tripId Required string uuid`
 
-- Response 
+- Response
   - 200 - Default Response
     ```json
       {
@@ -320,4 +320,3 @@ Get a trip links.​
     "message": "…"
     }
     ```
-  
