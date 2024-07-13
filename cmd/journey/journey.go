@@ -12,6 +12,7 @@ import (
 
 	"journey/internal/api"
 	"journey/internal/api/spec"
+	"journey/internal/mailer/mailpit"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -64,7 +65,7 @@ func run(ctx context.Context) error {
 		return err
 	}
 
-	si := api.NewAPI(pool, logger)
+	si := api.NewAPI(pool, logger,mailpit.NewMailpit(pool))
 
 	r := chi.NewMux()
 	r.Use(middleware.RequestID, middleware.Recoverer, httputils.ChiLogger(logger))
