@@ -31,13 +31,14 @@
 - there are 2 options setingup aplication
   - Setup App and DB at once
     ```bash
-      docker compose up -d
+      docker compose up
      ```
   - Set DB and run with go
     ```bash
-      docker compose start db -d
+      docker compose start db
+      docker compose start mailer
       # Optianaly setup pgadmin
-      docker compose start pgadmin -d
+      # docker compose start pgadmin
       go run ./cmd/journey/journey.go
     ```
   - Test it! (I personally recommend testing with [Hoppscotch](https://hoppscotch.io/)).
