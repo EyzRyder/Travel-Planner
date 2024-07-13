@@ -1,4 +1,4 @@
-module journey
+module github.com/EyzRyder/Travel-Planner
 
 go 1.22.4
 

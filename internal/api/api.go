@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"journey/internal/api/spec"
-	"journey/internal/pgstore"
-	"net/http"
+    "net/http"
+
+	"github.com/EyzRyder/Travel-Planner/internal/api/spec"
+	"github.com/EyzRyder/Travel-Planner/internal/pgstore"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"

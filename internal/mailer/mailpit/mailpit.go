@@ -3,8 +3,9 @@ package mailpit
 import (
 	"context"
 	"fmt"
-	"journey/internal/pgstore"
 	"time"
+
+    "github.com/EyzRyder/Travel-Planner/internal/pgstore"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"

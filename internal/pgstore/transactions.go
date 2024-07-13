@@ -3,7 +3,8 @@ package pgstore
 import (
 	"context"
 	"fmt"
-	"journey/internal/api/spec"
+
+	"github.com/EyzRyder/Travel-Planner/internal/api/spec"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
