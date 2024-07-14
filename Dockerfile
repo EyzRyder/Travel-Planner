@@ -17,4 +17,4 @@ WORKDIR /app
 COPY --from=builder /bin/journey .
 
 EXPOSE 8080
-ENTRYPOINT [ "/journey/bin/journey" ]
+ENTRYPOINT [ "./journey" ]
