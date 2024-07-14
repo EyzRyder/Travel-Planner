@@ -15,6 +15,7 @@ import (
 	openapi_types "github.com/discord-gophers/goapi-gen/types"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+    "github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -34,6 +35,9 @@ type Store interface {
 
 	CreateActivity(ctx context.Context, params pgstore.CreateActivityParams) (uuid.UUID, error)
 	GetTripActivities(ctx context.Context, tripID uuid.UUID) ([]pgstore.Activity, error)
+
+	CreateTripLink(ctx context.Context, params pgstore.CreateTripLinkParams) (uuid.UUID, error)
+	GetTripLinks(ctx context.Context, tripID uuid.UUID) ([]pgstore.Link, error)
 }
 
 type Mailer interface {
@@ -373,13 +377,85 @@ func (ap *API) PostTripsTripIDInvites(w http.ResponseWriter, r *http.Request, tr
 // Get a trip links.
 // (GET /trips/{tripId}/links)
 func (ap *API) GetTripsTripIDLinks(w http.ResponseWriter, r *http.Request, tripID string) *spec.Response {
-	panic("not implemented") // TODO: Implement
+	id, err := uuid.Parse(tripID)
+	if err != nil {
+		return spec.GetTripsTripIDLinksJSON400Response(
+			spec.Error{Message: "invalid uuid passed: " + err.Error()},
+		)
+	}
+
+	links, err := ap.store.GetTripLinks(r.Context(), id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return spec.GetTripsTripIDLinksJSON400Response(
+				spec.Error{Message: "trip not found"},
+			)
+		}
+		ap.logger.Error(
+			"failed to find trip links",
+			zap.Error(err),
+			zap.String("trip_id", tripID),
+		)
+		return spec.GetTripsTripIDLinksJSON400Response(
+			spec.Error{Message: "something went wrong, try again"},
+		)
+	}
+
+	var output spec.GetLinksResponse
+
+	for _, link := range links {
+		output.Links = append(output.Links, spec.GetLinksResponseArray{
+			ID:    link.ID.String(),
+			Title: link.Title,
+			URL:   link.Url,
+		})
+	}
+
+	return spec.GetTripsTripIDLinksJSON200Response(output)
 }
 
 // Create a trip link.
 // (POST /trips/{tripId}/links)
 func (ap *API) PostTripsTripIDLinks(w http.ResponseWriter, r *http.Request, tripID string) *spec.Response {
-	panic("not implemented") // TODO: Implement
+	id, err := uuid.Parse(tripID)
+	if err != nil {
+		return spec.PostTripsTripIDLinksJSON400Response(
+			spec.Error{Message: "invalid uuid passed: " + err.Error()},
+		)
+	}
+
+	var body spec.PostTripsTripIDLinksJSONBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		return spec.PostTripsTripIDLinksJSON400Response(
+			spec.Error{Message: err.Error()},
+		)
+	}
+
+	linkID, err := ap.store.CreateTripLink(r.Context(),
+		pgstore.CreateTripLinkParams{
+			TripID: id,
+			Title:  body.Title,
+			Url:    body.URL,
+		})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return spec.PostTripsTripIDLinksJSON400Response(
+				spec.Error{Message: "trip not found"},
+			)
+		}
+		ap.logger.Error(
+			"failed to find trip participants",
+			zap.Error(err),
+			zap.String("trip_id", tripID),
+		)
+		return spec.PostTripsTripIDActivitiesJSON400Response(
+			spec.Error{Message: "something went wrong, try again"},
+		)
+	}
+
+	return spec.PostTripsTripIDLinksJSON201Response(
+		spec.CreateLinkResponse{LinkID: linkID.String()},
+	)
 }
 
 // Get a trip participants.
