@@ -14,7 +14,7 @@ import (
 
 	"github.com/EyzRyder/Travel-Planner/internal/api"
 	"github.com/EyzRyder/Travel-Planner/internal/api/spec"
-	"github.com/EyzRyder/Travel-Planner/internal/mailer/mailpit"
+	"github.com/EyzRyder/Travel-Planner/internal/mailpit"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
