@@ -12,22 +12,26 @@ import (
 )
 
 func (q *Queries) CreateTrip(ctx context.Context,pool *pgxpool.Pool, params spec.CreateTripRequest)(uuid.UUID,error){
+    var id uuid.UUID
     tx, err := pool.Begin(ctx)
     if err != nil {
-        return uuid.UUID{},fmt.Errorf("pgstore: failed to begin trx for CreateTrip: %w",err)
+        return id,fmt.Errorf("pgstore: failed to begin trx for CreateTrip: %w",err)
     }
 
-    defer tx.Rollback(ctx)
+    defer func(){tx.Rollback(ctx)}()
 
     qtx := q.WithTx(tx)
 
-    tripID,err:= qtx.InsertTrip(ctx,InsertTripParams{
-        Destination: params.Destination,
-        OwnerEmail: string(params.OwnerEmail),
-        OwnerName: params.OwnerName,
-        StartsAt: pgtype.Timestamp{Valid: true, Time: params.StartsAt},
-        EndsAt: pgtype.Timestamp{Valid: true, Time: params.EndsAt},
-    })
+    tripID,err:= qtx.InsertTrip(
+        ctx,
+        InsertTripParams{
+            Destination: params.Destination,
+            OwnerEmail: string(params.OwnerEmail),
+            OwnerName: params.OwnerName,
+            StartsAt: pgtype.Timestamp{Valid: true, Time: params.StartsAt},
+            EndsAt: pgtype.Timestamp{Valid: true, Time: params.EndsAt,},
+        },
+    )
 
     if err != nil {
         return uuid.UUID{},fmt.Errorf("pgstore: failed to insert trip for CreateTrip: %w",err)
@@ -42,12 +46,12 @@ func (q *Queries) CreateTrip(ctx context.Context,pool *pgxpool.Pool, params spec
     }
 
     if _, err := qtx.InviteParticipantsToTrip(ctx,participants); err != nil{
-        return uuid.UUID{},fmt.Errorf("pgstore: failed to insert trip for CreateTrip: %w",err)
+        return id,fmt.Errorf("pgstore: failed to insert trip for CreateTrip: %w",err)
     }
 
 
     if err:= tx.Commit(ctx); err != nil {
-        return uuid.UUID{},fmt.Errorf("pgstore: failed to commit tx for CreateTrip: %w",err)
+        return id,fmt.Errorf("pgstore: failed to commit tx for CreateTrip: %w",err)
     }
 
     return tripID,nil

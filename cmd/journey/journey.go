@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -23,24 +25,38 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
-	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGKILL)
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGKILL)
 	defer cancel()
 
 	if err := run(ctx); err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
+		fmt.Fprintf(os.Stderr, "someting went wrong: %s\n", err)
 		os.Exit(1)
 	}
-	fmt.Println("Goodbye :3")
+	fmt.Println("all systems offline, exiting... Goodbye :3")
 }
 
 func run(ctx context.Context) error {
-	cfg := zap.NewDevelopmentConfig()
-	cfg.EncoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	var env string
+	flag.StringVar(&env, "env", "prd", "either prd or dev, to set the environment")
+	flag.Parse()
 
-	logger, err := cfg.Build()
-	if err != nil {
-		return err
+	var logger *zap.Logger
+	var err  error
+
+	switch strings.ToLower(env) {
+	case "prd":
+		logger, err = zap.NewProduction()
+		if err != nil {
+			return err
+		}
+	case "dev":
+		cfg := zap.NewDevelopmentConfig()
+		cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+
+		logger, err = cfg.Build()
+		if err != nil {
+			return err
+		}
 	}
 
 	logger = logger.Named("journey_app")
@@ -65,7 +81,7 @@ func run(ctx context.Context) error {
 		return err
 	}
 
-	si := api.NewAPI(pool, logger,mailpit.NewMailpit(pool))
+	si := api.NewAPI(pool, logger, mailpit.NewMailpit(pool))
 
 	r := chi.NewMux()
 	r.Use(middleware.RequestID, middleware.Recoverer, httputils.ChiLogger(logger))

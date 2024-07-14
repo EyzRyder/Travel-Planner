@@ -31,12 +31,12 @@
 - there are 2 options setingup aplication
   - Setup App and DB at once
     ```bash
-      docker compose up
+      docker compose -f docker-compose.dev.yml up
      ```
   - Set DB and run with go
     ```bash
-      docker compose start db
-      docker compose start mailer
+      docker compose -f docker-compose.dev.yml start db
+      docker compose -f docker-compose.dev.yml start mailer
       # Optianaly setup pgadmin
       # docker compose start pgadmin
       go run ./cmd/journey/journey.go
