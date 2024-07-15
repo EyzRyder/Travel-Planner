@@ -28,3 +28,9 @@ jobs:
 
     - name: Build docker image
       run: docker build -t EyzRyder/travel-planner:${{steps.generate_sha.outputs.sha}} .
+
+    - name: Push Image
+      run: |
+        docker push EyzRyder/travel-planner:${{ steps.generate_sha.outputs.sha }}
+        docker tag EyzRyder/travel-planner:${{ steps.generate_sha.outputs.sha }} EyzRyder/travel-planner:latest
+        docker push EyzRyder/travel-planner:latest
