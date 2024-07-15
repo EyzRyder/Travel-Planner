@@ -40,5 +40,5 @@ jobs:
         context: .
         push: true
         tags: |
-          EyzRyder/travel-planner:${{ steps.generate_sha.outputs.sha }}
-          EyzRyder/travel-planner:latest
+          eyzryder/travel-planner:${{ steps.generate_sha.outputs.sha }}
+          eyzryder/travel-planner:latest
