@@ -40,5 +40,5 @@ jobs:
         context: .
         push: true
         tags: |
-          eyzryder/travel-planner:${{ steps.generate_sha.outputs.sha }}
-          eyzryder/travel-planner:latest
+          ${{secrets.DOCKERHUB_USERNAME}}/travel-planner:${{ steps.generate_sha.outputs.sha }}
+          ${{secrets.DOCKERHUB_USERNAME}}/travel-planner:latest
