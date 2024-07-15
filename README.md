@@ -28,7 +28,7 @@
 ```bash
   go generate ./...
 ```
-- there are 2 options setingup aplication
+- there are 3 options setingup aplication
   - Setup App and DB at once
     ```bash
       docker compose -f docker-compose.dev.yml up
@@ -41,7 +41,13 @@
       # docker compose start pgadmin
       go run ./cmd/journey/journey.go
     ```
-  - Test it! (I personally recommend testing with [Hoppscotch](https://hoppscotch.io/)).
+  - Run Production
+    ```bash
+    docker network create journey
+    docker compose -f docker-compose.prod.yaml up
+
+    ```
+- Test it! (I personally recommend testing with [Hoppscotch](https://hoppscotch.io/)).
 
 ## HTTP
 
