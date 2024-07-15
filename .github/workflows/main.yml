@@ -21,4 +21,4 @@ jobs:
         echo "sha=$SHA" >> $GITHUB_OUTPUT
 
     - name: Build docker image
-      run: docker build -t EyzRyder/Travel-Planner:${{steps.generate_sha.outputs.sha}} .
+      run: docker build -t EyzRyder/travel-planner:${{steps.generate_sha.outputs.sha}} .
